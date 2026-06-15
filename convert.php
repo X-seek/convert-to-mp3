@@ -2,9 +2,6 @@
 
 header('Content-Type: application/json; charset=utf-8');
 
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 $uploadDir = __DIR__ . "/uploads/";
 $outputDir = __DIR__ . "/output/";
 
@@ -18,12 +15,15 @@ if (!is_dir($outputDir)) {
 
 $videoPath = "";
 
-// ======================
-// อัปโหลดไฟล์
-// ======================
+/*
+|--------------------------------------------------------------------------
+| อัปโหลดไฟล์
+|--------------------------------------------------------------------------
+*/
+
 if (
     isset($_FILES['video']) &&
-    $_FILES['video']['error'] == 0 &&
+    $_FILES['video']['error'] === 0 &&
     !empty($_FILES['video']['name'])
 ) {
 
@@ -33,15 +33,18 @@ if (
     if (!move_uploaded_file($_FILES['video']['tmp_name'], $videoPath)) {
         echo json_encode([
             "status" => "error",
-            "message" => "move_uploaded_file failed"
+            "message" => "ไม่สามารถอัปโหลดไฟล์ได้"
         ]);
         exit;
     }
 }
 
-// ======================
-// URL
-// ======================
+/*
+|--------------------------------------------------------------------------
+| URL
+|--------------------------------------------------------------------------
+*/
+
 elseif (
     isset($_POST['video_url']) &&
     !empty(trim($_POST['video_url']))
@@ -49,9 +52,12 @@ elseif (
 
     $url = trim($_POST['video_url']);
 
-    // ======================
-    // YouTube
-    // ======================
+    /*
+    |--------------------------------------------------------------------------
+    | YouTube
+    |--------------------------------------------------------------------------
+    */
+
     if (
         strpos($url, "youtube.com") !== false ||
         strpos($url, "youtu.be") !== false
@@ -65,7 +71,7 @@ elseif (
 
         $command =
             $ytDlp .
-            " -f best -o " .
+            " -o " .
             escapeshellarg($outputTemplate) .
             " " .
             escapeshellarg($url) .
@@ -77,15 +83,21 @@ elseif (
 
         if (empty($files)) {
 
+            if (
+                strpos($ytOutput, "Sign in to confirm") !== false ||
+                strpos($ytOutput, "not a bot") !== false
+            ) {
+                echo json_encode([
+                    "status" => "error",
+                    "message" => "YouTube ปฏิเสธการดาวน์โหลดจากเซิร์ฟเวอร์ (Bot Protection)"
+                ]);
+                exit;
+            }
+
             echo json_encode([
                 "status" => "error",
-                "message" => "yt-dlp ดาวน์โหลดไม่สำเร็จ",
-                "command" => $command,
-                "yt_output" => $ytOutput,
-                "uploadDir" => $uploadDir,
-                "cwd" => getcwd()
+                "message" => "yt-dlp ดาวน์โหลดไม่สำเร็จ"
             ]);
-
             exit;
         }
 
@@ -93,9 +105,12 @@ elseif (
         $videoPath = $files[0];
     }
 
-    // ======================
-    // Direct Video URL
-    // ======================
+    /*
+    |--------------------------------------------------------------------------
+    | Direct Video URL
+    |--------------------------------------------------------------------------
+    */
+
     else {
 
         $videoPath =
@@ -127,23 +142,28 @@ else {
     exit;
 }
 
-// ======================
-// ตรวจสอบไฟล์
-// ======================
+/*
+|--------------------------------------------------------------------------
+| ตรวจสอบไฟล์
+|--------------------------------------------------------------------------
+*/
+
 if (!file_exists($videoPath)) {
 
     echo json_encode([
         "status" => "error",
-        "message" => "ไม่พบไฟล์วิดีโอ",
-        "videoPath" => $videoPath
+        "message" => "ไม่พบไฟล์วิดีโอ"
     ]);
 
     exit;
 }
 
-// ======================
-// แปลง MP3
-// ======================
+/*
+|--------------------------------------------------------------------------
+| Convert MP3
+|--------------------------------------------------------------------------
+*/
+
 $originalName =
     pathinfo(
         basename($videoPath),
@@ -157,6 +177,10 @@ $originalName =
         $originalName
     );
 
+if (trim($originalName) === "") {
+    $originalName = "audio_" . time();
+}
+
 $mp3Name = $originalName . ".mp3";
 $mp3Path = $outputDir . $mp3Name;
 
@@ -169,7 +193,19 @@ $ffmpegCommand =
 
 $ffmpegOutput = shell_exec($ffmpegCommand);
 
+/*
+|--------------------------------------------------------------------------
+| ลบไฟล์ต้นฉบับ
+|--------------------------------------------------------------------------
+*/
+
 @unlink($videoPath);
+
+/*
+|--------------------------------------------------------------------------
+| ส่งผลลัพธ์
+|--------------------------------------------------------------------------
+*/
 
 if (file_exists($mp3Path)) {
 
@@ -177,15 +213,14 @@ if (file_exists($mp3Path)) {
         "status" => "success",
         "file" => $mp3Name
     ]);
+
 } else {
 
     echo json_encode([
         "status" => "error",
-        "message" => "Convert Failed",
-        "ffmpeg_output" => $ffmpegOutput,
-        "videoPath" => $videoPath,
-        "mp3Path" => $mp3Path
+        "message" => "Convert Failed"
     ]);
 }
+
 exit;
 ?>
