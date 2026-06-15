@@ -85,7 +85,10 @@ fileInput.addEventListener("change", () => {
     if (fileInput.files.length > 0) {
         selectedFile.innerHTML =
             "✓ " + fileInput.files[0].name;
-        clearFileBtn.style.display = "inline-block";
+        if (clearFileBtn) {
+            clearFileBtn.style.display =
+                "inline-block";
+        }
     }
 });
 

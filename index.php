@@ -27,7 +27,7 @@
                         หรือคลิกเพื่อเลือกไฟล์
                     </div>
                 </div>
-                <div id="selectedFile"></div>
+
                 <input
                     type="file"
                     name="video"
@@ -36,6 +36,11 @@
 
                 <!-- แสดงชื่อไฟล์ -->
                 <div id="selectedFile"></div>
+                <button
+                    type="button"
+                    id="clearFileBtn">
+                    ❌ ยกเลิกไฟล์
+                </button>
                 <p>OR</p>
                 <input
                     type="url"
