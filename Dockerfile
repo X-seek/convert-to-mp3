@@ -9,7 +9,6 @@ WORKDIR /app
 COPY . .
 
 RUN mkdir -p uploads output
+RUN chmod +x start.sh
 
-EXPOSE 8080
-
-CMD php -S 0.0.0.0:$PORT
+CMD ["sh", "start.sh"]
