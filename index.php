@@ -40,7 +40,7 @@
                     type="url"
                     name="video_url"
                     placeholder="วางลิงก์วิดีโอ">
-                <!-- PROGRESS BAR -->
+                <!-- PROGRESS BARgit branch -->
                 <div class="progress-box" id="progressBox">
                     <div class="progress-bar" id="progressBar">0%</div>
                 </div>
