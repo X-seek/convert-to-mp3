@@ -43,9 +43,7 @@ if (
 |--------------------------------------------------------------------------
 | URL
 |--------------------------------------------------------------------------
-*/
-
-elseif (
+*/ elseif (
     isset($_POST['video_url']) &&
     !empty(trim($_POST['video_url']))
 ) {
@@ -77,7 +75,7 @@ elseif (
             escapeshellarg($url) .
             " 2>&1";
 
-        $ytOutput = shell_exec($command);
+        $ytOutput = shell_exec($command . " 2>&1");
 
         $files = glob($uploadDir . "*.*");
 
@@ -109,9 +107,7 @@ elseif (
     |--------------------------------------------------------------------------
     | Direct Video URL
     |--------------------------------------------------------------------------
-    */
-
-    else {
+    */ else {
 
         $videoPath =
             $uploadDir .
@@ -130,9 +126,7 @@ elseif (
 
         file_put_contents($videoPath, $videoData);
     }
-}
-
-else {
+} else {
 
     echo json_encode([
         "status" => "error",
@@ -213,7 +207,6 @@ if (file_exists($mp3Path)) {
         "status" => "success",
         "file" => $mp3Name
     ]);
-
 } else {
 
     echo json_encode([
@@ -223,4 +216,3 @@ if (file_exists($mp3Path)) {
 }
 
 exit;
-?>
