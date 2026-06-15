@@ -76,12 +76,16 @@ form.addEventListener("submit", async function (e) {
 // Drop Zone
 const dropZone = document.getElementById("dropZone");
 const selectedFile = document.getElementById("selectedFile");
+const clearFileBtn =
+    document.getElementById("clearFileBtn");
 
 dropZone.addEventListener("click", () => fileInput.click());
 
 fileInput.addEventListener("change", () => {
     if (fileInput.files.length > 0) {
-        selectedFile.innerHTML = "✓ " + fileInput.files[0].name;
+        selectedFile.innerHTML =
+            "✓ " + fileInput.files[0].name;
+        clearFileBtn.style.display = "inline-block";
     }
 });
 
@@ -99,9 +103,19 @@ document.addEventListener("dragleave", (e) => {
 document.addEventListener("drop", (e) => {
     e.preventDefault();
     dropZone.classList.remove("dragover");
+
     if (e.dataTransfer.files.length > 0) {
-        fileInput.files = e.dataTransfer.files;
+        const dt = new DataTransfer();
+        dt.items.add(e.dataTransfer.files[0]);
+        fileInput.files = dt.files;
         selectedFile.classList.add("show");
-        selectedFile.innerHTML = "✓ เลือกไฟล์แล้ว : " + fileInput.files[0].name;
+        selectedFile.innerHTML =
+            "✓ เลือกไฟล์แล้ว : " +
+            fileInput.files[0].name;
     }
+});
+clearFileBtn.addEventListener("click", () => {
+    fileInput.value = "";
+    selectedFile.innerHTML = "";
+    clearFileBtn.style.display = "none";
 });
