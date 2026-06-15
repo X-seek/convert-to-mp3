@@ -38,7 +38,8 @@
                 <div id="selectedFile"></div>
                 <button
                     type="button"
-                    id="clearFileBtn">
+                    id="clearFileBtn"
+                    style="display:none;">
                     ❌ ยกเลิกไฟล์
                 </button>
                 <p>OR</p>
