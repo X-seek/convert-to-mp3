@@ -1,12 +1,12 @@
 FROM php:8.3-cli
 
-RUN apt-get update && apt-get install -y ffmpeg python3 curl nodejs npm
+RUN apt-get update && apt-get install -y ffmpeg python3 python3-pip curl
 
 RUN curl -L "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp" -o /usr/local/bin/yt-dlp
 
 RUN chmod a+rx /usr/local/bin/yt-dlp
 
-RUN npm install -g youtube-po-token-generator
+RUN pip3 install yt-dlp-get-pot --break-system-packages
 
 WORKDIR /app
 
