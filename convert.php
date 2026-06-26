@@ -33,7 +33,8 @@ if (
 |--------------------------------------------------------------------------
 | URL
 |--------------------------------------------------------------------------
-*/ elseif (isset($_POST['video_url']) && !empty(trim($_POST['video_url']))) {
+*/
+elseif (isset($_POST['video_url']) && !empty(trim($_POST['video_url']))) {
 
     $url = trim($_POST['video_url']);
 
@@ -104,10 +105,12 @@ if (
 
         rsort($files);
         $videoPath = $files[0];
+
     }
     /*
     | Direct URL
-    */ else {
+    */
+    else {
         $videoPath = $uploadDir . time() . "_video";
         $videoData = @file_get_contents($url);
 
