@@ -62,8 +62,18 @@ if (
     ) {
         $ytDlp = "yt-dlp";
         $outputTemplate = $uploadDir . "%(title)s.%(ext)s";
-        $cookieFile = __DIR__ . "/cookies.txt";
-        $cookieFlag = file_exists($cookieFile) ? " --cookies " . escapeshellarg($cookieFile) : "";
+
+        // โหลด cookies จาก environment variable
+        $cookieFile = sys_get_temp_dir() . "/yt_cookies.txt";
+        $cookieEnv = getenv('YOUTUBE_COOKIES');
+
+        if ($cookieEnv) {
+            file_put_contents($cookieFile, $cookieEnv);
+        }
+
+        $cookieFlag = file_exists($cookieFile) && filesize($cookieFile) > 0
+            ? " --cookies " . escapeshellarg($cookieFile)
+            : "";
 
         $command = $ytDlp .
             $cookieFlag .
@@ -72,6 +82,9 @@ if (
             " 2>&1";
 
         $ytOutput = shell_exec($command);
+
+        // ลบ cookie temp file
+        @unlink($cookieFile);
 
         $files = glob($uploadDir . "*.*");
 
@@ -90,7 +103,7 @@ if (
 
             echo json_encode([
                 "status" => "error",
-                "message" => "yt-dlp ดาวน์โหลดไม่สำเร็จ"
+                "message" => "yt-dlp ดาวน์โหลดไม่สำเร็จ: " . substr($ytOutput, 0, 200)
             ]);
             exit;
         }
@@ -105,11 +118,7 @@ if (
     |--------------------------------------------------------------------------
     */ else {
 
-        $videoPath =
-            $uploadDir .
-            time() .
-            "_video";
-
+        $videoPath = $uploadDir . time() . "_video";
         $videoData = @file_get_contents($url);
 
         if ($videoData === false) {
@@ -128,7 +137,6 @@ if (
         "status" => "error",
         "message" => "กรุณาเลือกไฟล์หรือใส่ URL"
     ]);
-
     exit;
 }
 
@@ -139,12 +147,10 @@ if (
 */
 
 if (!file_exists($videoPath)) {
-
     echo json_encode([
         "status" => "error",
         "message" => "ไม่พบไฟล์วิดีโอ"
     ]);
-
     exit;
 }
 
@@ -154,18 +160,8 @@ if (!file_exists($videoPath)) {
 |--------------------------------------------------------------------------
 */
 
-$originalName =
-    pathinfo(
-        basename($videoPath),
-        PATHINFO_FILENAME
-    );
-
-$originalName =
-    preg_replace(
-        '/[^\p{L}\p{N}\s\-_]/u',
-        '',
-        $originalName
-    );
+$originalName = pathinfo(basename($videoPath), PATHINFO_FILENAME);
+$originalName = preg_replace('/[^\p{L}\p{N}\s\-_]/u', '', $originalName);
 
 if (trim($originalName) === "") {
     $originalName = "audio_" . time();
@@ -198,13 +194,11 @@ $ffmpegOutput = shell_exec($ffmpegCommand);
 */
 
 if (file_exists($mp3Path)) {
-
     echo json_encode([
         "status" => "success",
         "file" => $mp3Name
     ]);
 } else {
-
     echo json_encode([
         "status" => "error",
         "message" => "Convert Failed"
