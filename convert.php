@@ -60,24 +60,18 @@ if (
         strpos($url, "youtube.com") !== false ||
         strpos($url, "youtu.be") !== false
     ) {
-
         $ytDlp = "yt-dlp";
-
-        $outputTemplate =
-            $uploadDir .
-            "%(title)s.%(ext)s";
-
+        $outputTemplate = $uploadDir . "%(title)s.%(ext)s";
         $cookieFile = __DIR__ . "/cookies.txt";
         $cookieFlag = file_exists($cookieFile) ? " --cookies " . escapeshellarg($cookieFile) : "";
 
         $command = $ytDlp .
-            " --no-check-certificate" .
             $cookieFlag .
             " -o " . escapeshellarg($outputTemplate) .
             " " . escapeshellarg($url) .
             " 2>&1";
 
-        $ytOutput = shell_exec($command . " 2>&1");
+        $ytOutput = shell_exec($command);
 
         $files = glob($uploadDir . "*.*");
 
