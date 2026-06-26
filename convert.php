@@ -67,12 +67,14 @@ if (
             $uploadDir .
             "%(title)s.%(ext)s";
 
-        $command =
-            $ytDlp .
-            " -o " .
-            escapeshellarg($outputTemplate) .
-            " " .
-            escapeshellarg($url) .
+        $cookieFile = __DIR__ . "/cookies.txt";
+        $cookieFlag = file_exists($cookieFile) ? " --cookies " . escapeshellarg($cookieFile) : "";
+
+        $command = $ytDlp .
+            " --no-check-certificate" .
+            $cookieFlag .
+            " -o " . escapeshellarg($outputTemplate) .
+            " " . escapeshellarg($url) .
             " 2>&1";
 
         $ytOutput = shell_exec($command . " 2>&1");

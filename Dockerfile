@@ -14,4 +14,4 @@ RUN mkdir -p /app/uploads /app/output && chmod 777 /app/uploads /app/output
 
 EXPOSE 8080
 
-CMD ["php", "-S", "0.0.0.0:8080", "-t", "/app"]
+CMD ["php", "-S", "0.0.0.0:8080", "-t", "/app", "-c", "/app/php.ini"]
